@@ -18,6 +18,7 @@ export interface BookingEntry {
   notes?: string;
   status: BookingStatus;
   submittedAt: string;
+  cartItems?: CartItem[];
 }
 
 export interface ReviewEntry {
@@ -52,6 +53,7 @@ function toBooking(row: any): BookingEntry {
     notes: row.notes ?? undefined,
     status: row.status,
     submittedAt: row.submitted_at,
+    cartItems: row.cart_items ?? undefined,
   };
 }
 
@@ -133,6 +135,7 @@ export async function saveBooking(
     date: booking.date,
     notes: booking.notes ?? null,
     status: "pending",
+    cart_items: booking.cartItems ?? null,
   }).select().single();
   if (error) throw error;
   return toBooking(data);

@@ -4,9 +4,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, CheckCircle } from "lucide-react";
+import { CalendarIcon, CheckCircle, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { saveBooking } from "@/lib/store";
+import { useCart } from "@/lib/CartContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,7 @@ const serviceTypes = [
 export default function Book() {
   const [date, setDate] = useState<Date | undefined>();
   const [submitted, setSubmitted] = useState(false);
+  const { cart, clearCart } = useCart();
 
   const {
     register,
@@ -61,7 +63,12 @@ export default function Book() {
       return;
     }
     await new Promise((r) => setTimeout(r, 800));
-    await saveBooking({ ...data, date: format(date, "PPP") });
+    await saveBooking({
+      ...data,
+      date: format(date, "PPP"),
+      cartItems: cart.length > 0 ? cart : undefined,
+    });
+    clearCart();
     setSubmitted(true);
     toast.success("Booking request sent! We'll confirm shortly.");
   };
@@ -115,6 +122,29 @@ export default function Book() {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6 bg-card border border-border rounded-xl p-5 sm:p-8 shadow-industrial"
         >
+          {/* Cart items for installation */}
+          {cart.length > 0 && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-primary" />
+                <p className="font-oswald uppercase tracking-wider text-sm font-bold">Items for Installation</p>
+              </div>
+              <div className="space-y-2">
+                {cart.map(item => (
+                  <div key={item.productId} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <img src={item.image} alt={item.name} className="w-8 h-8 rounded object-cover shrink-0 border border-border" />
+                      <span className="font-barlow text-sm truncate">{item.name}</span>
+                      <span className="font-barlow text-xs text-muted-foreground shrink-0">×{item.quantity}</span>
+                    </div>
+                    <span className="font-oswald text-sm text-primary shrink-0">₱{(item.price * item.quantity).toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="font-barlow text-xs text-muted-foreground">These items will be noted in your booking for our mechanics.</p>
+            </div>
+          )}
+
           {/* Full Name */}
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>

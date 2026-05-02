@@ -112,8 +112,18 @@ export default function BookingsTab({ bookings, onRefresh }: Props) {
                       <span>📞 {b.phone}</span>
                       <span>✉️ {b.email}</span>
                     </div>
+                    {b.cartItems && b.cartItems.length > 0 && (
+                      <div className="border-l-2 border-primary/40 pl-2 mt-1 space-y-0.5">
+                        <p className="font-oswald text-xs uppercase tracking-wider text-primary">Items for Installation</p>
+                        {b.cartItems.map(item => (
+                          <p key={item.productId} className="font-barlow text-xs text-muted-foreground">
+                            {item.name} ×{item.quantity} — ₱{(item.price * item.quantity).toLocaleString()}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                     {b.notes && (
-                      <p className="font-barlow text-xs text-muted-foreground italic border-l-2 border-primary/40 pl-2 mt-1">{b.notes}</p>
+                      <p className="font-barlow text-xs text-muted-foreground italic border-l-2 border-border pl-2 mt-1">{b.notes}</p>
                     )}
                     <p className="font-barlow text-xs text-steel">
                       Submitted: {format(new Date(b.submittedAt), "MMM d, yyyy · h:mm a")}
