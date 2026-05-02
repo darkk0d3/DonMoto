@@ -4,6 +4,7 @@ import {
   LayoutDashboard, CalendarCheck, Users, Star, Package,
   LogOut, Menu, X, Lock, Eye, EyeOff, Wrench
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,9 +15,6 @@ import BookingsTab from "@/components/admin/BookingsTab";
 import CustomersTab from "@/components/admin/CustomersTab";
 import ReviewsTab from "@/components/admin/ReviewsTab";
 import ProductsTab from "@/components/admin/ProductsTab";
-
-const ADMIN_PASS = "donmoto2025";
-const AUTH_KEY = "donmoto_admin_auth";
 
 type Tab = "overview" | "bookings" | "customers" | "reviews" | "products";
 
@@ -30,19 +28,24 @@ const navItems: { id: Tab; label: string; icon: React.ElementType }[] = [
 
 // ── Login screen ─────────────────────────────────────────────────────────────
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password === ADMIN_PASS) {
-      localStorage.setItem(AUTH_KEY, "true");
-      onLogin();
-    } else {
-      setError("Incorrect password. Please try again.");
+    setLoading(true);
+    setError("");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError("Incorrect email or password. Please try again.");
       setPassword("");
+    } else {
+      onLogin();
     }
+    setLoading(false);
   }
 
   return (
@@ -66,6 +69,18 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           className="bg-card border border-border rounded-xl p-6 shadow-industrial space-y-4"
         >
           <div className="space-y-2">
+            <Label htmlFor="admin-email">Email</Label>
+            <Input
+              id="admin-email"
+              type="email"
+              placeholder="admin@donmoto.com"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setError(""); }}
+              autoFocus
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="admin-pass">Password</Label>
             <div className="relative">
               <Input
@@ -75,7 +90,6 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
                 value={password}
                 onChange={e => { setPassword(e.target.value); setError(""); }}
                 className="pr-10"
-                autoFocus
               />
               <button
                 type="button"
@@ -89,8 +103,8 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 
           {error && <p className="text-xs text-destructive font-barlow">{error}</p>}
 
-          <Button type="submit" className="w-full font-oswald uppercase tracking-wider">
-            Sign In
+          <Button type="submit" disabled={loading} className="w-full font-oswald uppercase tracking-wider">
+            {loading ? "Signing in…" : "Sign In"}
           </Button>
         </form>
 
@@ -122,7 +136,6 @@ function Sidebar({
 
   const content = (
     <div className="flex flex-col h-full">
-      {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-border">
         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
           <Wrench className="w-4 h-4 text-primary" />
@@ -135,7 +148,6 @@ function Sidebar({
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map(({ id, label, icon: Icon }) => (
           <button
@@ -164,7 +176,6 @@ function Sidebar({
         ))}
       </nav>
 
-      {/* Logout */}
       <div className="px-3 pb-4 border-t border-border pt-4">
         <button
           onClick={onLogout}
@@ -185,12 +196,10 @@ function Sidebar({
 
   return (
     <>
-      {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-56 bg-card border-r border-border fixed left-0 top-0 bottom-0 z-30">
         {content}
       </aside>
 
-      {/* Mobile sidebar overlay */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-40 bg-black/60"
@@ -209,22 +218,43 @@ function Sidebar({
 
 // ── Main Admin ────────────────────────────────────────────────────────────────
 export default function Admin() {
-  const [authed, setAuthed] = useState(() => localStorage.getItem(AUTH_KEY) === "true");
+  const [authed, setAuthed] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("overview");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [bookings, setBookings] = useState<BookingEntry[]>([]);
   const [reviews, setReviews] = useState<ReviewEntry[]>([]);
 
-  const refresh = useCallback(() => {
-    setBookings(getBookings());
-    setReviews(getReviews());
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthed(!!session);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthed(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const refresh = useCallback(async () => {
+    const [b, r] = await Promise.all([getBookings(), getReviews()]);
+    setBookings(b);
+    setReviews(r);
   }, []);
 
   useEffect(() => { if (authed) refresh(); }, [authed, refresh]);
 
-  function handleLogout() {
-    localStorage.removeItem(AUTH_KEY);
+  async function handleLogout() {
+    await supabase.auth.signOut();
     setAuthed(false);
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="font-barlow text-muted-foreground text-sm">Loading…</p>
+      </div>
+    );
   }
 
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
@@ -252,9 +282,7 @@ export default function Admin() {
         pendingReviews={pendingReviews}
       />
 
-      {/* Main content */}
       <div className="lg:ml-56 flex flex-col min-h-screen">
-        {/* Top bar */}
         <header className="h-14 border-b border-border bg-card/80 backdrop-blur-md flex items-center justify-between px-4 sticky top-0 z-20">
           <div className="flex items-center gap-3">
             <button
@@ -283,7 +311,6 @@ export default function Admin() {
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 p-4 sm:p-6 xl:p-8">
           {tab === "overview"  && <Overview bookings={bookings} reviews={reviews} />}
           {tab === "bookings"  && <BookingsTab bookings={bookings} onRefresh={refresh} />}

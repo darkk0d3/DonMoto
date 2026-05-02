@@ -15,14 +15,14 @@ export default function ReviewsTab({ reviews, onRefresh }: Props) {
     .filter(r => filter === "all" || (filter === "approved" ? r.approved : !r.approved))
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
 
-  function handleApprove(id: string, approved: boolean) {
-    updateReviewApproval(id, approved);
+  async function handleApprove(id: string, approved: boolean) {
+    await updateReviewApproval(id, approved);
     onRefresh();
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (!confirm("Delete this review?")) return;
-    deleteReview(id);
+    await deleteReview(id);
     onRefresh();
   }
 

@@ -61,7 +61,7 @@ export default function Book() {
       return;
     }
     await new Promise((r) => setTimeout(r, 800));
-    saveBooking({ ...data, date: format(date, "PPP") });
+    await saveBooking({ ...data, date: format(date, "PPP") });
     setSubmitted(true);
     toast.success("Booking request sent! We'll confirm shortly.");
   };

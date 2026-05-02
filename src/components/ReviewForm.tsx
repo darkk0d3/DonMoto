@@ -54,7 +54,7 @@ export default function ReviewForm({ onSubmitted }: { onSubmitted?: () => void }
     if (!name.trim() || !quote.trim()) { toast.error("Please fill in all required fields."); return; }
     setLoading(true);
     await new Promise(r => setTimeout(r, 600));
-    saveReview({ name: name.trim(), bike: bike.trim() || "Motorcycle rider", rating, quote: quote.trim() });
+    await saveReview({ name: name.trim(), bike: bike.trim() || "Motorcycle rider", rating, quote: quote.trim() });
     setSubmitted(true);
     setLoading(false);
     toast.success("Review submitted! It will appear after approval.");

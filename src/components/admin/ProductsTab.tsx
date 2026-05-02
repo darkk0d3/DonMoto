@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Plus, Edit2, Trash2, Package, Search, X, Check, ImageIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { Plus, Edit2, Trash2, Package, Search, X, Check, ImageIcon, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,8 +40,9 @@ const emptyForm: FormState = {
 };
 
 export default function ProductsTab() {
-  const [products, setProducts] = useState<ProductEntry[]>(getProducts);
-  const [allModels, setAllModels] = useState<string[]>(getBikeModels);
+  const [products, setProducts] = useState<ProductEntry[]>([]);
+  const [allModels, setAllModels] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newModel, setNewModel] = useState("");
   const [view, setView] = useState<"list" | "form">("list");
   const [editing, setEditing] = useState<ProductEntry | null>(null);
@@ -49,8 +51,17 @@ export default function ProductsTab() {
   const [search, setSearch] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
 
-  const refresh = () => setProducts(getProducts());
+  useEffect(() => {
+    Promise.all([getProducts(), getBikeModels()]).then(([p, m]) => {
+      setProducts(p);
+      setAllModels(m);
+      setLoading(false);
+    });
+  }, []);
+
+  const refresh = async () => setProducts(await getProducts());
 
   const openAdd = () => {
     setEditing(null);
@@ -86,7 +97,7 @@ export default function ProductsTab() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
     const data = {
       name: form.name.trim(),
@@ -97,17 +108,17 @@ export default function ProductsTab() {
       compatibleModels: form.compatibleModels,
     };
     if (editing) {
-      updateProduct(editing.id, data);
+      await updateProduct(editing.id, data);
     } else {
-      saveProduct(data);
+      await saveProduct(data);
     }
-    refresh();
+    await refresh();
     setView("list");
   };
 
-  const handleDelete = (id: string) => {
-    deleteProduct(id);
-    refresh();
+  const handleDelete = async (id: string) => {
+    await deleteProduct(id);
+    await refresh();
     setDeleteConfirm(null);
   };
 
@@ -120,20 +131,34 @@ export default function ProductsTab() {
     }));
   };
 
-  const handleAddModel = () => {
+  const handleAddModel = async () => {
     const name = newModel.trim();
     if (!name) return;
-    const updated = addBikeModel(name);
-    if (updated.length === allModels.length) return; // duplicate, no change
+    const updated = await addBikeModel(name);
+    if (updated.length === allModels.length) return;
     setAllModels(updated);
     setNewModel("");
     setForm(f => ({ ...f, compatibleModels: [...f.compatibleModels, name] }));
   };
 
-  const handleRemoveModel = (model: string) => {
-    const updated = removeBikeModel(model);
+  const handleRemoveModel = async (model: string) => {
+    const updated = await removeBikeModel(model);
     setAllModels(updated);
     setForm(f => ({ ...f, compatibleModels: f.compatibleModels.filter(m => m !== model) }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    setImageError(false);
+    const path = `${Date.now()}-${file.name}`;
+    const { data, error } = await supabase.storage.from("products").upload(path, file);
+    if (error) { setImageUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("products").getPublicUrl(data.path);
+    setForm(f => ({ ...f, image: urlData.publicUrl }));
+    setImageUploading(false);
+    e.target.value = "";
   };
 
   const filtered = products.filter(p =>
@@ -141,6 +166,14 @@ export default function ProductsTab() {
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24 text-muted-foreground font-barlow text-sm">
+        Loading products…
+      </div>
+    );
+  }
 
   // ── LIST VIEW ──────────────────────────────────────────────────────────────
   if (view === "list") {
@@ -324,18 +357,28 @@ export default function ProductsTab() {
           />
         </div>
 
-        {/* Image URL */}
+        {/* Image */}
         <div className="space-y-2">
-          <Label htmlFor="p-image" className="font-oswald uppercase tracking-wider text-xs">
-            Image URL *
-          </Label>
-          <Input
-            id="p-image"
-            placeholder="https://images.unsplash.com/..."
-            value={form.image}
-            onChange={e => { setForm(f => ({ ...f, image: e.target.value })); setImageError(false); }}
-            className="font-barlow"
-          />
+          <Label className="font-oswald uppercase tracking-wider text-xs">Image *</Label>
+          <div className="flex gap-2">
+            <Input
+              id="p-image"
+              placeholder="https://images.unsplash.com/..."
+              value={form.image}
+              onChange={e => { setForm(f => ({ ...f, image: e.target.value })); setImageError(false); }}
+              className="font-barlow flex-1"
+            />
+            <label className={cn(
+              "flex items-center gap-1.5 px-3 h-10 rounded-md border border-border text-xs font-oswald uppercase tracking-wider cursor-pointer transition-colors shrink-0",
+              imageUploading
+                ? "opacity-50 pointer-events-none"
+                : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+            )}>
+              <Upload className="w-3.5 h-3.5" />
+              {imageUploading ? "Uploading…" : "Upload"}
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+            </label>
+          </div>
           {errors.image && <p className="text-xs text-destructive font-barlow">{errors.image}</p>}
           {form.image && (
             <div className="mt-2 rounded-lg overflow-hidden border border-border w-48 h-36 bg-secondary flex items-center justify-center shrink-0">
@@ -356,7 +399,7 @@ export default function ProductsTab() {
             </div>
           )}
           <p className="text-xs font-barlow text-muted-foreground">
-            Tip: use any public image URL (e.g. from Unsplash).
+            Upload an image or paste a public URL (e.g. from Unsplash).
           </p>
         </div>
 
@@ -410,7 +453,6 @@ export default function ProductsTab() {
             ))}
           </div>
 
-          {/* Add new model */}
           <div className="flex gap-2 pt-1">
             <Input
               placeholder="Add new model (e.g. Honda ADV 160)"

@@ -34,14 +34,14 @@ export default function BookingsTab({ bookings, onRefresh }: Props) {
     )
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
 
-  function handleStatusChange(id: string, status: BookingStatus) {
-    updateBookingStatus(id, status);
+  async function handleStatusChange(id: string, status: BookingStatus) {
+    await updateBookingStatus(id, status);
     onRefresh();
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (!confirm("Delete this booking?")) return;
-    deleteBooking(id);
+    await deleteBooking(id);
     onRefresh();
   }
 
