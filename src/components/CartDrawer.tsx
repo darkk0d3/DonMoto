@@ -97,10 +97,8 @@ export default function CartDrawer() {
                     ₱{total.toLocaleString()}
                   </span>
                 </div>
-                <Button className="w-full font-oswald uppercase tracking-wider" asChild>
-                  <Link to="/book" onClick={() => setDrawerOpen(false)}>
-                    Book a Service to Install
-                  </Link>
+                <Button className="w-full font-oswald uppercase tracking-wider" onClick={() => setDrawerOpen(false)} asChild>
+                  <Link to="/book">Book a Service to Install</Link>
                 </Button>
                 <button
                   onClick={clearCart}
