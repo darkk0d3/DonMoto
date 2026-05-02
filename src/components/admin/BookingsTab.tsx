@@ -129,6 +129,12 @@ export default function BookingsTab({ bookings, onRefresh }: Props) {
                             </div>
                           </div>
                         ))}
+                        <div className="flex justify-between items-center pt-1 border-t border-border">
+                          <span className="font-barlow text-xs text-muted-foreground">Total</span>
+                          <span className="font-oswald text-sm font-bold text-primary">
+                            ₱{b.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()}
+                          </span>
+                        </div>
                       </div>
                     )}
                     {b.notes && (
