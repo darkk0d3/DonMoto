@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -85,8 +85,15 @@ function ProductCard({ product }: { product: ProductEntry }) {
 export default function Shop() {
   const [category, setCategory] = useState<Category>("All");
   const [bikeFilter, setBikeFilter] = useState<string>("All");
-  const [products] = useState<ProductEntry[]>(getProducts);
-  const bikeModels = getBikeModels();
+  const [products, setProducts] = useState<ProductEntry[]>([]);
+  const [bikeModels, setBikeModels] = useState<string[]>([]);
+
+  useEffect(() => {
+    Promise.all([getProducts(), getBikeModels()]).then(([p, m]) => {
+      setProducts(p);
+      setBikeModels(m);
+    });
+  }, []);
 
   const filtered = products.filter((p) => {
     const catMatch = category === "All" || p.category === category;

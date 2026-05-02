@@ -44,11 +44,12 @@ export default function Index() {
   const [liveReviews, setLiveReviews] = useState<ReviewEntry[]>([]);
 
   useEffect(() => {
-    setLiveReviews(getReviews().filter((r) => r.approved));
+    getReviews().then(reviews => setLiveReviews(reviews.filter(r => r.approved)));
   }, []);
 
-  function handleReviewSubmitted() {
-    setLiveReviews(getReviews().filter((r) => r.approved));
+  async function handleReviewSubmitted() {
+    const reviews = await getReviews();
+    setLiveReviews(reviews.filter(r => r.approved));
   }
 
   return (
