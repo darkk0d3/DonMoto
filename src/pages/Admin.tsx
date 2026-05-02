@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
-  LayoutDashboard, CalendarCheck, Users, Star,
+  LayoutDashboard, CalendarCheck, Users, Star, Package,
   LogOut, Menu, X, Lock, Eye, EyeOff, Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,17 +13,19 @@ import Overview from "@/components/admin/Overview";
 import BookingsTab from "@/components/admin/BookingsTab";
 import CustomersTab from "@/components/admin/CustomersTab";
 import ReviewsTab from "@/components/admin/ReviewsTab";
+import ProductsTab from "@/components/admin/ProductsTab";
 
 const ADMIN_PASS = "donmoto2025";
 const AUTH_KEY = "donmoto_admin_auth";
 
-type Tab = "overview" | "bookings" | "customers" | "reviews";
+type Tab = "overview" | "bookings" | "customers" | "reviews" | "products";
 
 const navItems: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "overview",  label: "Overview",  icon: LayoutDashboard },
   { id: "bookings",  label: "Bookings",  icon: CalendarCheck },
   { id: "customers", label: "Customers", icon: Users },
   { id: "reviews",   label: "Reviews",   icon: Star },
+  { id: "products",  label: "Products",  icon: Package },
 ];
 
 // ── Login screen ─────────────────────────────────────────────────────────────
@@ -235,6 +237,7 @@ export default function Admin() {
     bookings: "Bookings",
     customers: "Customers",
     reviews: "Reviews",
+    products: "Products",
   };
 
   return (
@@ -286,6 +289,7 @@ export default function Admin() {
           {tab === "bookings"  && <BookingsTab bookings={bookings} onRefresh={refresh} />}
           {tab === "customers" && <CustomersTab bookings={bookings} />}
           {tab === "reviews"   && <ReviewsTab reviews={reviews} onRefresh={refresh} />}
+          {tab === "products"  && <ProductsTab />}
         </main>
       </div>
     </div>

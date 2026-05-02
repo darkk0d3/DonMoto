@@ -199,7 +199,7 @@ export default function Index() {
                       </div>
                       <CardContent className="p-4">
                         <h3 className="font-oswald font-semibold text-sm uppercase leading-snug mb-1">{product.name}</h3>
-                        <p className="font-oswald text-lg font-bold text-primary">${product.price}</p>
+                        <p className="font-oswald text-lg font-bold text-primary">₱{product.price}</p>
                       </CardContent>
                     </Card>
                   </Link>

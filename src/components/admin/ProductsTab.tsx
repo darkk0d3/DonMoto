@@ -9,9 +9,11 @@ import {
   saveProduct,
   updateProduct,
   deleteProduct,
+  getBikeModels,
+  addBikeModel,
+  removeBikeModel,
   type ProductEntry,
 } from "@/lib/store";
-import { bikeModels } from "@/data/products";
 
 const CATEGORIES = ["Tires", "Lubricants", "Parts", "Gear"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -38,6 +40,8 @@ const emptyForm: FormState = {
 
 export default function ProductsTab() {
   const [products, setProducts] = useState<ProductEntry[]>(getProducts);
+  const [allModels, setAllModels] = useState<string[]>(getBikeModels);
+  const [newModel, setNewModel] = useState("");
   const [view, setView] = useState<"list" | "form">("list");
   const [editing, setEditing] = useState<ProductEntry | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -114,6 +118,22 @@ export default function ProductsTab() {
         ? f.compatibleModels.filter(m => m !== model)
         : [...f.compatibleModels, model],
     }));
+  };
+
+  const handleAddModel = () => {
+    const name = newModel.trim();
+    if (!name) return;
+    const updated = addBikeModel(name);
+    if (updated.length === allModels.length) return; // duplicate, no change
+    setAllModels(updated);
+    setNewModel("");
+    setForm(f => ({ ...f, compatibleModels: [...f.compatibleModels, name] }));
+  };
+
+  const handleRemoveModel = (model: string) => {
+    const updated = removeBikeModel(model);
+    setAllModels(updated);
+    setForm(f => ({ ...f, compatibleModels: f.compatibleModels.filter(m => m !== model) }));
   };
 
   const filtered = products.filter(p =>
@@ -350,35 +370,66 @@ export default function ProductsTab() {
                 setForm(f => ({
                   ...f,
                   compatibleModels:
-                    f.compatibleModels.length === bikeModels.length ? [] : [...bikeModels],
+                    f.compatibleModels.length === allModels.length ? [] : [...allModels],
                 }))
               }
               className="text-xs font-barlow text-primary hover:underline"
             >
-              {form.compatibleModels.length === bikeModels.length ? "Deselect all" : "Select all"}
+              {form.compatibleModels.length === allModels.length ? "Deselect all" : "Select all"}
             </button>
           </div>
+
           <div className="grid grid-cols-2 gap-2">
-            {bikeModels.map(model => (
-              <label
-                key={model}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors font-barlow text-sm",
-                  form.compatibleModels.includes(model)
-                    ? "border-primary bg-primary/10 text-foreground"
-                    : "border-border text-muted-foreground hover:border-primary/40"
-                )}
-              >
-                <input
-                  type="checkbox"
-                  checked={form.compatibleModels.includes(model)}
-                  onChange={() => toggleModel(model)}
-                  className="accent-primary"
-                />
-                {model}
-              </label>
+            {allModels.map(model => (
+              <div key={model} className="relative group">
+                <label
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 pr-7 rounded-lg border cursor-pointer transition-colors font-barlow text-sm w-full",
+                    form.compatibleModels.includes(model)
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border text-muted-foreground hover:border-primary/40"
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.compatibleModels.includes(model)}
+                    onChange={() => toggleModel(model)}
+                    className="accent-primary shrink-0"
+                  />
+                  <span className="truncate">{model}</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveModel(model)}
+                  title="Remove this model"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
             ))}
           </div>
+
+          {/* Add new model */}
+          <div className="flex gap-2 pt-1">
+            <Input
+              placeholder="Add new model (e.g. Honda ADV 160)"
+              value={newModel}
+              onChange={e => setNewModel(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleAddModel(); } }}
+              className="font-barlow text-sm"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAddModel}
+              className="font-oswald uppercase tracking-wider shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add
+            </Button>
+          </div>
+
           {errors.models && (
             <p className="text-xs text-destructive font-barlow">{errors.models}</p>
           )}

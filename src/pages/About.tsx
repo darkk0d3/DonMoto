@@ -12,29 +12,17 @@ const stagger = { show: { transition: { staggerChildren: 0.1 } } };
 
 const team = [
   {
-    name: "Don Moto",
+    name: "Dondon Masanque",
     role: "Founder & Master Technician",
-    cert: "ASE Master Certified, 20+ years exp.",
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400",
-  },
-  {
-    name: "Carla Reyes",
-    role: "Senior Mechanic",
-    cert: "Honda & Yamaha Factory Trained",
-    img: "https://images.unsplash.com/photo-1494790108755-2616b612b0a8?q=80&w=400",
-  },
-  {
-    name: "Jake Osei",
-    role: "Electrical Specialist",
-    cert: "EFI & CAN-bus Diagnostics Expert",
-    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400",
-  },
+    cert: "Guzman Institute Of Electronics, 20+ years exp.",
+    img: "https://scontent.fmnl8-6.fna.fbcdn.net/v/t39.30808-6/435927290_7360314114058247_3584423020379612338_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=1d70fc&_nc_eui2=AeFFllgPtsMb8LDY8QeBpYK16GAuwjg0mcjoYC7CODSZyG_JEQN8I7SPDUOT2AhBEEcIysOZELm6MUVgAqTzI31n&_nc_ohc=U3g9L_pLfDkQ7kNvwEyC3gD&_nc_oc=AdoZGar2v9IZ8a86R-9a2nULDqZciXnGf4xuf8wSilmnLuqExglC95tvB39QJQTytXM&_nc_zt=23&_nc_ht=scontent.fmnl8-6.fna&_nc_gid=aad5WECHun5bVksjCoOyPw&_nc_ss=7a2a8&oh=00_Af4r9hqTvxjA6_mZzO2uTtTSq5TblRjGcj_rH3jlyKGnWA&oe=69FBAFC8",
+  }
 ];
 
 const stats = [
-  { icon: Wrench, value: "8,000+", label: "Bikes Serviced" },
-  { icon: Users, value: "3,500+", label: "Happy Riders" },
-  { icon: Award, value: "20+", label: "Years in Business" },
+  { icon: Wrench, value: "1,500+", label: "Bikes Serviced" },
+  { icon: Users, value: "500+", label: "Happy Riders" },
+  { icon: Award, value: "3+", label: "Years in Business" },
   { icon: ShieldCheck, value: "100%", label: "Certified Work" },
 ];
 
@@ -52,7 +40,7 @@ export default function About() {
           <p className="font-oswald text-xs uppercase tracking-[4px] text-primary mb-3">Our Story</p>
           <h1 className="font-oswald font-bold uppercase text-3xl sm:text-5xl lg:text-6xl mb-6">About DonMoto</h1>
           <p className="font-barlow text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-            Founded in 2005 by a passionate rider who couldn't find a shop he trusted, DonMoto grew from a one-bay garage into the city's premier motorcycle service centre — with the same uncompromising standards that started it all.
+            Founded in 2021 by a passionate rider who couldn't find a shop he trusted, DonMoto grew from a one-bay garage into the city's premier motorcycle service centre — with the same uncompromising standards that started it all.
           </p>
         </motion.div>
 
@@ -158,7 +146,7 @@ export default function About() {
             <h2 className="font-oswald font-bold uppercase text-3xl mb-6">Find Us</h2>
             <ul className="space-y-5 font-barlow">
               {[
-                { icon: MapPin, text: "1284 Ironworks Ave, Moto City, CA 90210" },
+                { icon: MapPin, text: "1584 Velasquez St. Tondo, Manila, 1012, Metro Manila" },
                 { icon: Phone, text: "+63 949 681 6756", href: "tel:+639496816756" },
                 { icon: Mail, text: "info@donmoto.com", href: "mailto:info@donmoto.com" },
               ].map(({ icon: Icon, text, href }) => (

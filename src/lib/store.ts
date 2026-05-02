@@ -1,4 +1,4 @@
-import { products as defaultProducts } from "@/data/products";
+import { products as defaultProducts, bikeModels } from "@/data/products";
 import type { Product } from "@/data/products";
 
 export type { Product };
@@ -143,4 +143,30 @@ export function updateProduct(id: string, updates: Partial<Omit<ProductEntry, "i
 
 export function deleteProduct(id: string): void {
   write(PRODUCTS_KEY, getProducts().filter(p => p.id !== id));
+}
+
+// ── Bike Models ───────────────────────────────────────────────────────────────
+const BIKE_MODELS_KEY = "donmoto_bike_models";
+
+export function getBikeModels(): string[] {
+  const raw = localStorage.getItem(BIKE_MODELS_KEY);
+  if (!raw) {
+    localStorage.setItem(BIKE_MODELS_KEY, JSON.stringify(bikeModels));
+    return [...bikeModels];
+  }
+  try { return JSON.parse(raw); } catch { return [...bikeModels]; }
+}
+
+export function addBikeModel(name: string): string[] {
+  const models = getBikeModels();
+  if (models.map(m => m.toLowerCase()).includes(name.toLowerCase())) return models;
+  const updated = [...models, name];
+  localStorage.setItem(BIKE_MODELS_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+export function removeBikeModel(name: string): string[] {
+  const updated = getBikeModels().filter(m => m !== name);
+  localStorage.setItem(BIKE_MODELS_KEY, JSON.stringify(updated));
+  return updated;
 }

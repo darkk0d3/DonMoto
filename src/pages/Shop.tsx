@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { products, bikeModels, type Product } from "@/data/products";
+import { getProducts, getBikeModels, type ProductEntry } from "@/lib/store";
 import { useCart } from "@/lib/CartContext";
 
 const categories = ["All", "Tires", "Lubricants", "Parts", "Gear"] as const;
@@ -18,7 +18,7 @@ const fadeUp = {
 };
 const stagger = { show: { transition: { staggerChildren: 0.07 } } };
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product }: { product: ProductEntry }) {
   const { addItem, setDrawerOpen } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -85,6 +85,8 @@ function ProductCard({ product }: { product: Product }) {
 export default function Shop() {
   const [category, setCategory] = useState<Category>("All");
   const [bikeFilter, setBikeFilter] = useState<string>("All");
+  const [products] = useState<ProductEntry[]>(getProducts);
+  const bikeModels = getBikeModels();
 
   const filtered = products.filter((p) => {
     const catMatch = category === "All" || p.category === category;
