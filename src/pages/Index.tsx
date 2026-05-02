@@ -88,7 +88,7 @@ export default function Index() {
               variants={fadeUp}
               className="font-barlow text-muted-foreground text-base sm:text-lg mb-8 sm:mb-10 max-w-lg leading-relaxed"
             >
-              Expert mechanical repairs, electrical diagnostics, and premium parts — all under one roof. Trusted by riders since 2005.
+              Expert mechanical repairs, electrical diagnostics, and premium parts — all under one roof. Trusted by riders since 2021.
             </motion.p>
 
             <motion.div variants={fadeUp} className="flex flex-wrap gap-3 sm:gap-4 mb-10 sm:mb-14">
