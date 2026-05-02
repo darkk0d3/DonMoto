@@ -113,12 +113,21 @@ export default function BookingsTab({ bookings, onRefresh }: Props) {
                       <span>✉️ {b.email}</span>
                     </div>
                     {b.cartItems && b.cartItems.length > 0 && (
-                      <div className="border-l-2 border-primary/40 pl-2 mt-1 space-y-0.5">
+                      <div className="mt-2 space-y-1.5">
                         <p className="font-oswald text-xs uppercase tracking-wider text-primary">Items for Installation</p>
                         {b.cartItems.map(item => (
-                          <p key={item.productId} className="font-barlow text-xs text-muted-foreground">
-                            {item.name} ×{item.quantity} — ₱{(item.price * item.quantity).toLocaleString()}
-                          </p>
+                          <div key={item.productId} className="flex items-center gap-2">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-10 h-10 rounded object-cover border border-border shrink-0"
+                              onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                            />
+                            <div className="min-w-0">
+                              <p className="font-barlow text-xs text-foreground truncate">{item.name}</p>
+                              <p className="font-barlow text-xs text-muted-foreground">×{item.quantity} — ₱{(item.price * item.quantity).toLocaleString()}</p>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     )}
