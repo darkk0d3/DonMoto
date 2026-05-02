@@ -1,14 +1,17 @@
-import { useMemo } from "react";
-import { CalendarCheck, Users, Star, Clock, CheckCircle, Wrench } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CalendarCheck, Users, Star, Clock, CheckCircle, Wrench, Download, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { type BookingEntry, type ReviewEntry } from "@/lib/store";
-import { format } from "date-fns";
+import { format, startOfDay, startOfWeek, startOfMonth, isAfter } from "date-fns";
 
 interface Props {
   bookings: BookingEntry[];
   reviews: ReviewEntry[];
 }
+
+type Period = "daily" | "weekly" | "monthly" | "all";
 
 const statusVariant: Record<string, "pending" | "confirmed" | "in-progress" | "completed" | "cancelled"> = {
   pending: "pending",
@@ -18,7 +21,69 @@ const statusVariant: Record<string, "pending" | "confirmed" | "in-progress" | "c
   cancelled: "cancelled",
 };
 
+function getPeriodStart(period: Period): Date | null {
+  const now = new Date();
+  if (period === "daily")   return startOfDay(now);
+  if (period === "weekly")  return startOfWeek(now, { weekStartsOn: 1 });
+  if (period === "monthly") return startOfMonth(now);
+  return null;
+}
+
+function bookingTotal(b: BookingEntry): number {
+  if (!b.cartItems || b.cartItems.length === 0) return 0;
+  return b.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+function downloadCSV(bookings: BookingEntry[], period: Period) {
+  const headers = [
+    "Booking ID", "Submitted At", "Customer Name", "Phone", "Email",
+    "Bike", "Service Type", "Appointment Date", "Status",
+    "Items", "Items Total (₱)",
+  ];
+
+  const rows = bookings.map(b => [
+    b.id,
+    format(new Date(b.submittedAt), "yyyy-MM-dd HH:mm"),
+    b.fullName,
+    b.phone,
+    b.email,
+    b.bikeMakeModel,
+    b.serviceType,
+    b.date,
+    b.status,
+    b.cartItems && b.cartItems.length > 0
+      ? b.cartItems.map(i => `${i.name} x${i.quantity}`).join(" | ")
+      : "—",
+    bookingTotal(b) > 0 ? bookingTotal(b).toLocaleString() : "—",
+  ]);
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `donmoto-sales-${period}-${format(new Date(), "yyyy-MM-dd")}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function Overview({ bookings, reviews }: Props) {
+  const [period, setPeriod] = useState<Period>("monthly");
+
+  const filteredBookings = useMemo(() => {
+    const start = getPeriodStart(period);
+    if (!start) return bookings;
+    return bookings.filter(b => isAfter(new Date(b.submittedAt), start));
+  }, [bookings, period]);
+
+  const salesTotal = useMemo(
+    () => filteredBookings.reduce((sum, b) => sum + bookingTotal(b), 0),
+    [filteredBookings]
+  );
+
   const stats = useMemo(() => {
     const uniqueCustomers = new Set(bookings.map(b => b.email || b.phone)).size;
     return [
@@ -31,13 +96,20 @@ export default function Overview({ bookings, reviews }: Props) {
     ];
   }, [bookings, reviews]);
 
-  const recentBookings = [...bookings].sort(
-    (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-  ).slice(0, 5);
+  const recentBookings = [...bookings]
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+    .slice(0, 5);
 
-  const recentReviews = [...reviews].sort(
-    (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-  ).slice(0, 4);
+  const recentReviews = [...reviews]
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+    .slice(0, 4);
+
+  const periodLabel: Record<Period, string> = {
+    daily: "Today",
+    weekly: "This Week",
+    monthly: "This Month",
+    all: "All Time",
+  };
 
   return (
     <div className="space-y-8">
@@ -53,6 +125,66 @@ export default function Overview({ bookings, reviews }: Props) {
           </Card>
         ))}
       </div>
+
+      {/* Sales Report */}
+      <Card className="bg-card border-border shadow-industrial">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <h3 className="font-oswald font-bold uppercase text-lg">Sales Report</h3>
+            </div>
+            {/* Period filter */}
+            <div className="flex gap-2 flex-wrap">
+              {(["daily", "weekly", "monthly", "all"] as Period[]).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPeriod(p)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-oswald uppercase tracking-wider border transition-colors ${
+                    period === p
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:border-primary/50"
+                  }`}
+                >
+                  {periodLabel[p]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary numbers */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+            <div className="bg-secondary rounded-lg p-4">
+              <p className="font-barlow text-xs text-muted-foreground mb-1">Total Bookings</p>
+              <p className="font-oswald font-bold text-2xl text-foreground">{filteredBookings.length}</p>
+              <p className="font-barlow text-xs text-muted-foreground">{periodLabel[period]}</p>
+            </div>
+            <div className="bg-secondary rounded-lg p-4">
+              <p className="font-barlow text-xs text-muted-foreground mb-1">Parts Revenue</p>
+              <p className="font-oswald font-bold text-2xl text-primary">₱{salesTotal.toLocaleString()}</p>
+              <p className="font-barlow text-xs text-muted-foreground">{periodLabel[period]}</p>
+            </div>
+            <div className="bg-secondary rounded-lg p-4">
+              <p className="font-barlow text-xs text-muted-foreground mb-1">Completed</p>
+              <p className="font-oswald font-bold text-2xl text-green-400">
+                {filteredBookings.filter(b => b.status === "completed").length}
+              </p>
+              <p className="font-barlow text-xs text-muted-foreground">{periodLabel[period]}</p>
+            </div>
+          </div>
+
+          {/* Download button */}
+          <Button
+            onClick={() => downloadCSV(filteredBookings, period)}
+            variant="outline"
+            className="font-oswald uppercase tracking-wider w-full sm:w-auto"
+            disabled={filteredBookings.length === 0}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download CSV — {periodLabel[period]} ({filteredBookings.length} bookings)
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Recent bookings */}
