@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+    --primary: 20 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 20 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 18%;
+    --input: 0 0% 14%;
+    --ring: 20 100% 50%;
+    --radius: 0.5rem;
+    --steel: 0 0% 40%;
+    --surface: 0 0% 10%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-barlow;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-oswald;
+  }
+}
+
+@layer utilities {
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(20 100% 50%), hsl(30 100% 60%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.92) 0%,
+      rgba(0, 0, 0, 0.7) 50%,
+      rgba(0, 0, 0, 0.3) 100%
+    ),
+    linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 40%);
+  }
+
+  .bg-gradient-card {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--surface)) 100%
+    );
+  }
+
+  .shadow-industrial {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 4px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .border-glow {
+    box-shadow: 0 0 0 1px hsl(var(--primary)), 0 0 16px rgba(255, 90, 0, 0.4);
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 16px rgba(255, 90, 0, 0.5); }
+    50%       { box-shadow: 0 0 32px rgba(255, 90, 0, 0.9); }
+  }
+}
