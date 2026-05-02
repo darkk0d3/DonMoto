@@ -1,10 +1,12 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Shield, Award, Clock, Settings, Wrench, Zap, Star, ArrowRight } from "lucide-react";
+import { Shield, Award, Clock, Settings, Wrench, Zap, Star, ArrowRight, MessageSquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import ReviewForm from "@/components/ReviewForm";
+import { getReviews, type ReviewEntry } from "@/lib/store";
 import { products } from "@/data/products";
-import { services } from "@/data/services";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -14,10 +16,6 @@ const fadeUp = {
 const stagger = {
   show: { transition: { staggerChildren: 0.1 } },
 };
-
-const featuredServices = services.filter((s) =>
-  ["oil-change", "engine-rebuild", "electrical-diag"].includes(s.id)
-);
 
 const featuredProducts = products.slice(0, 4);
 
@@ -42,9 +40,17 @@ const testimonials = [
   },
 ];
 
-const serviceIcons: Record<string, typeof Wrench> = { Settings, Wrench, Zap };
-
 export default function Index() {
+  const [liveReviews, setLiveReviews] = useState<ReviewEntry[]>([]);
+
+  useEffect(() => {
+    setLiveReviews(getReviews().filter((r) => r.approved));
+  }, []);
+
+  function handleReviewSubmitted() {
+    setLiveReviews(getReviews().filter((r) => r.approved));
+  }
+
   return (
     <main>
       {/* Hero */}
@@ -71,7 +77,7 @@ export default function Index() {
 
             <motion.h1
               variants={fadeUp}
-              className="font-oswald font-bold uppercase leading-[0.9] text-5xl sm:text-6xl lg:text-7xl mb-6"
+              className="font-oswald font-bold uppercase leading-[0.95] text-4xl sm:text-5xl lg:text-7xl mb-6"
             >
               Built to Ride.<br />
               <span className="text-gradient-primary">Built to Last.</span>
@@ -79,12 +85,12 @@ export default function Index() {
 
             <motion.p
               variants={fadeUp}
-              className="font-barlow text-muted-foreground text-lg mb-10 max-w-lg leading-relaxed"
+              className="font-barlow text-muted-foreground text-base sm:text-lg mb-8 sm:mb-10 max-w-lg leading-relaxed"
             >
               Expert mechanical repairs, electrical diagnostics, and premium parts — all under one roof. Trusted by riders since 2005.
             </motion.p>
 
-            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mb-14">
+            <motion.div variants={fadeUp} className="flex flex-wrap gap-3 sm:gap-4 mb-10 sm:mb-14">
               <Button asChild size="xl" className="font-oswald uppercase tracking-wider">
                 <Link to="/book">
                   Book a Service <ArrowRight className="w-5 h-5" />
@@ -129,19 +135,19 @@ export default function Index() {
 
           <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { id: "oil-change", label: "Maintenance", price: "$49", icon: Settings, desc: "Full synthetic oil change with 27-point safety inspection." },
-              { id: "engine-rebuild", label: "Engine Work", price: "$199+", icon: Wrench, desc: "Valve adjustments, carb cleaning, EFI tuning, full rebuilds." },
-              { id: "electrical-diag", label: "Electrical", price: "$79", icon: Zap, desc: "Full wiring diagnostics, fault scanning, LED upgrades." },
+              { id: "oil-change", label: "Maintenance", price: "Contact us", icon: Settings, desc: "CVT cleaning, tune-ups, and full mechanical overhauls." },
+              { id: "engine-rebuild", label: "Engine Work", price: "Contact us", icon: Wrench, desc: "Top overhaul, general overhaul, fullwave conversion, and more." },
+              { id: "electrical-diag", label: "Electrical", price: "Contact us", icon: Zap, desc: "Wiring, alarm installation, GPS tracking, and fault diagnosis." },
             ].map(({ label, price, icon: Icon, desc }) => (
               <motion.div key={label} variants={fadeUp}>
                 <Card className="bg-gradient-card group hover:border-glow transition-all duration-300 h-full shadow-industrial">
-                  <CardContent className="p-8">
+                  <CardContent className="p-5 sm:p-8">
                     <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="font-oswald font-bold uppercase text-xl mb-2">{label}</h3>
                     <p className="text-muted-foreground text-sm font-barlow mb-4 leading-relaxed">{desc}</p>
-                    <p className="font-oswald text-2xl font-bold text-primary">From {price}</p>
+                    <p className="font-oswald text-lg font-bold text-primary">{price}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -170,7 +176,7 @@ export default function Index() {
               <h2 className="font-oswald font-bold uppercase text-4xl lg:text-5xl">Featured Products</h2>
             </motion.div>
 
-            <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <motion.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
               {featuredProducts.map((product) => (
                 <motion.div key={product.id} variants={fadeUp}>
                   <Link to="/shop" className="block group">
@@ -246,6 +252,74 @@ export default function Index() {
         </motion.div>
       </section>
 
+      {/* Customer Reviews */}
+      {liveReviews.length > 0 && (
+        <section className="bg-surface py-24">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+            >
+              <motion.div variants={fadeUp} className="text-center mb-12">
+                <p className="font-oswald text-xs uppercase tracking-[4px] text-primary mb-3">Verified Customers</p>
+                <h2 className="font-oswald font-bold uppercase text-4xl lg:text-5xl">Customer Reviews</h2>
+              </motion.div>
+
+              <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {liveReviews.map((r) => (
+                  <motion.div key={r.id} variants={fadeUp}>
+                    <Card className="bg-gradient-card shadow-industrial h-full">
+                      <CardContent className="p-7">
+                        <div className="flex gap-1 mb-4">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${i < r.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`}
+                            />
+                          ))}
+                        </div>
+                        <p className="font-barlow text-muted-foreground italic mb-5 leading-relaxed">"{r.quote}"</p>
+                        <div>
+                          <p className="font-oswald font-semibold uppercase tracking-wide text-sm">{r.name}</p>
+                          {r.bike && <p className="font-barlow text-xs text-muted-foreground">{r.bike}</p>}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* Leave a Review */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-8 py-24">
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
+          <motion.div variants={fadeUp} className="text-center mb-12">
+            <p className="font-oswald text-xs uppercase tracking-[4px] text-primary mb-3">Share Your Experience</p>
+            <h2 className="font-oswald font-bold uppercase text-4xl lg:text-5xl flex items-center justify-center gap-3">
+              <MessageSquarePlus className="w-9 h-9 text-primary" />
+              Leave a Review
+            </h2>
+            <p className="font-barlow text-muted-foreground mt-4 max-w-md mx-auto">
+              Rode with us? Tell others about your experience. Reviews are published after a quick check by our team.
+            </p>
+          </motion.div>
+
+          <motion.div variants={fadeUp} className="max-w-xl mx-auto">
+            <ReviewForm onSubmitted={handleReviewSubmitted} />
+          </motion.div>
+        </motion.div>
+      </section>
+
       {/* CTA */}
       <section className="bg-primary py-20">
         <motion.div
@@ -255,7 +329,7 @@ export default function Index() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="font-oswald font-bold uppercase text-4xl lg:text-5xl text-primary-foreground mb-5">
+          <h2 className="font-oswald font-bold uppercase text-3xl sm:text-4xl lg:text-5xl text-primary-foreground mb-5">
             Ready to Ride?
           </h2>
           <p className="font-barlow text-primary-foreground/80 text-lg mb-8">

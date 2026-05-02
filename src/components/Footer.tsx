@@ -8,20 +8,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <div className="mb-4 overflow-hidden" style={{ width: 140, height: 38 }}>
-              <img
-                src="/DonMoto_logo.png"
-                alt="DonMoto"
-                style={{
-                  width: 140,
-                  height: 140,
-                  objectFit: "cover",
-                  objectPosition: "center 44%",
-                }}
-              />
-            </div>
+            <img src="/DonMoto_logo.png" alt="DonMoto" className="logo-footer mb-4" />
             <p className="text-muted-foreground text-sm leading-relaxed font-barlow">
-              Precision motorcycle service, repairs, and premium parts. Trusted by riders since 2005.
+              Precision motorcycle service, repairs, and premium parts. Trusted by riders since 2021.
             </p>
           </div>
 
@@ -51,7 +40,7 @@ export default function Footer() {
             <ul className="space-y-3 font-barlow text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
-                <a href="tel:+15551234567" className="hover:text-primary transition-colors">+1 (555) 123-4567</a>
+                <a href="tel:+639496816756" className="hover:text-primary transition-colors">+63 949 681 6756</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary shrink-0" />
@@ -59,7 +48,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>1284 Ironworks Ave,<br />Moto City, CA 90210</span>
+                <span>1584 Velasquez St. Tondo, Manila, 1012, Metro Manila</span>
               </li>
             </ul>
           </div>
@@ -69,7 +58,7 @@ export default function Footer() {
             <h3 className="font-oswald text-sm uppercase tracking-widest text-primary mb-4">Business Hours</h3>
             <ul className="space-y-2 font-barlow text-sm text-muted-foreground">
               {[
-                { day: "Mon – Fri", hours: "8:00 AM – 6:00 PM" },
+                { day: "Mon – Fri", hours: "9:00 AM – 6:00 PM" },
                 { day: "Saturday", hours: "9:00 AM – 4:00 PM" },
                 { day: "Sunday", hours: "Closed" },
               ].map((h) => (

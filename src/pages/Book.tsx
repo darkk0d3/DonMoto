@@ -6,6 +6,7 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { saveBooking } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,18 +28,18 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const serviceTypes = [
-  "Oil & Filter Change",
-  "Tire Replacement & Balancing",
-  "Brake Service",
-  "Chain & Sprocket Service",
-  "Valve Clearance Adjustment",
-  "Carburetor Clean & Tune",
-  "EFI Tuning & Diagnostics",
-  "Full Engine Rebuild",
-  "Electrical Diagnostics",
-  "Battery Service",
-  "Lighting Upgrade",
-  "Alarm & Immobiliser Install",
+  "CVT Cleaning",
+  "Minor Wiring",
+  "Fullwave Conversion",
+  "Top Overhaul",
+  "General Overhaul Mechanical",
+  "Tune-Up (2–4 Valve)",
+  "Scan Diagnose",
+  "General Wiring",
+  "Alarm Installation",
+  "Electrical Problem Diagnosis",
+  "GPS Tracking Installation",
+  "Resetting Error Codes",
   "Other – I'll describe in notes",
 ];
 
@@ -60,7 +61,7 @@ export default function Book() {
       return;
     }
     await new Promise((r) => setTimeout(r, 800));
-    console.log({ ...data, date: format(date, "PPP") });
+    saveBooking({ ...data, date: format(date, "PPP") });
     setSubmitted(true);
     toast.success("Booking request sent! We'll confirm shortly.");
   };
@@ -101,7 +102,7 @@ export default function Book() {
           transition={{ duration: 0.5 }}
         >
           <p className="font-oswald text-xs uppercase tracking-[4px] text-primary mb-3">Schedule a Visit</p>
-          <h1 className="font-oswald font-bold uppercase text-5xl lg:text-6xl mb-4">Book a Service</h1>
+          <h1 className="font-oswald font-bold uppercase text-3xl sm:text-5xl lg:text-6xl mb-4">Book a Service</h1>
           <p className="font-barlow text-muted-foreground text-lg">
             Fill in the details below and we'll lock in a time that works for you.
           </p>
@@ -112,7 +113,7 @@ export default function Book() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 bg-card border border-border rounded-xl p-8 shadow-industrial"
+          className="space-y-6 bg-card border border-border rounded-xl p-5 sm:p-8 shadow-industrial"
         >
           {/* Full Name */}
           <div className="space-y-2">
@@ -125,7 +126,7 @@ export default function Book() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" {...register("phone")} />
+              <Input id="phone" type="tel" placeholder="+63 9XX XXX XXXX" {...register("phone")} />
               {errors.phone && <p className="text-xs text-destructive font-barlow">{errors.phone.message}</p>}
             </div>
             <div className="space-y-2">

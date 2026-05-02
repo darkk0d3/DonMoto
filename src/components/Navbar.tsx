@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/lib/CartContext";
 
 const links = [
   { to: "/", label: "Home" },
@@ -15,22 +16,14 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const { itemCount, setDrawerOpen } = useCart();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <nav className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
-        <Link to="/" className="flex items-center overflow-hidden" style={{ width: 160, height: 44 }}>
-          <img
-            src="/DonMoto_logo.png"
-            alt="DonMoto"
-            style={{
-              width: 160,
-              height: 160,
-              objectFit: "cover",
-              objectPosition: "center 44%",
-            }}
-          />
+        <Link to="/" className="flex items-center">
+          <img src="/DonMoto_logo.png" alt="DonMoto" className="logo-navbar" />
         </Link>
 
         {/* Desktop nav */}
@@ -47,6 +40,18 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="relative text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Open cart"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            {itemCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] font-oswald font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                {itemCount > 9 ? "9+" : itemCount}
+              </span>
+            )}
+          </button>
           <Button asChild size="sm" className="font-oswald uppercase tracking-wider">
             <Link to="/book">Book a Service</Link>
           </Button>

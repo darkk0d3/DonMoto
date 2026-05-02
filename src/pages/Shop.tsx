@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Check } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { products, bikeModels, type Product } from "@/data/products";
+import { useCart } from "@/lib/CartContext";
 
 const categories = ["All", "Tires", "Lubricants", "Parts", "Gear"] as const;
 type Category = (typeof categories)[number];
@@ -17,6 +19,17 @@ const fadeUp = {
 const stagger = { show: { transition: { staggerChildren: 0.07 } } };
 
 function ProductCard({ product }: { product: Product }) {
+  const { addItem, setDrawerOpen } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    addItem({ id: product.id, name: product.name, price: product.price, image: product.image });
+    toast.success("Added to cart!", { description: product.name });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+    setDrawerOpen(true);
+  };
+
   return (
     <motion.div variants={fadeUp} layout>
       <Card className="overflow-hidden group hover:border-primary/50 transition-all duration-300 shadow-industrial h-full">
@@ -38,7 +51,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <CardContent className="p-4">
           <h3 className="font-oswald font-semibold text-sm uppercase leading-snug mb-1">{product.name}</h3>
-          <p className="font-oswald text-xl font-bold text-primary mb-3">${product.price}</p>
+          <p className="font-oswald text-xl font-bold text-primary mb-3">₱{product.price.toLocaleString()}</p>
           <div className="flex flex-wrap gap-1 mb-3">
             {product.compatibleModels.slice(0, 3).map((m) => (
               <span key={m} className="text-xs font-barlow bg-secondary text-muted-foreground px-2 py-0.5 rounded-full">
@@ -51,8 +64,17 @@ function ProductCard({ product }: { product: Product }) {
               </span>
             )}
           </div>
-          <Button size="sm" className="w-full font-oswald uppercase tracking-wider text-xs" variant="outline">
-            <ShoppingCart className="w-3.5 h-3.5 mr-1" /> Add to Cart
+          <Button
+            size="sm"
+            className="w-full font-oswald uppercase tracking-wider text-xs"
+            variant={added ? "default" : "outline"}
+            onClick={handleAddToCart}
+          >
+            {added ? (
+              <><Check className="w-3.5 h-3.5 mr-1" /> Added!</>
+            ) : (
+              <><ShoppingCart className="w-3.5 h-3.5 mr-1" /> Add to Cart</>
+            )}
           </Button>
         </CardContent>
       </Card>
@@ -81,8 +103,8 @@ export default function Shop() {
           transition={{ duration: 0.5 }}
         >
           <p className="font-oswald text-xs uppercase tracking-[4px] text-primary mb-3">Premium Parts & Gear</p>
-          <h1 className="font-oswald font-bold uppercase text-5xl lg:text-6xl mb-4">The Shop</h1>
-          <p className="font-barlow text-muted-foreground max-w-xl mx-auto text-lg">
+          <h1 className="font-oswald font-bold uppercase text-3xl sm:text-5xl lg:text-6xl mb-4">The Shop</h1>
+          <p className="font-barlow text-muted-foreground max-w-xl mx-auto text-base sm:text-lg">
             OEM and aftermarket parts, fluids, and rider gear for all major makes and models.
           </p>
         </motion.div>
@@ -128,7 +150,7 @@ export default function Shop() {
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
         >
           {filtered.length > 0 ? (
             filtered.map((p) => <ProductCard key={p.id} product={p} />)

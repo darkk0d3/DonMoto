@@ -50,7 +50,7 @@ export default function About() {
           transition={{ duration: 0.5 }}
         >
           <p className="font-oswald text-xs uppercase tracking-[4px] text-primary mb-3">Our Story</p>
-          <h1 className="font-oswald font-bold uppercase text-5xl lg:text-6xl mb-6">About DonMoto</h1>
+          <h1 className="font-oswald font-bold uppercase text-3xl sm:text-5xl lg:text-6xl mb-6">About DonMoto</h1>
           <p className="font-barlow text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
             Founded in 2005 by a passionate rider who couldn't find a shop he trusted, DonMoto grew from a one-bay garage into the city's premier motorcycle service centre — with the same uncompromising standards that started it all.
           </p>
@@ -67,10 +67,10 @@ export default function About() {
           {stats.map(({ icon: Icon, value, label }) => (
             <motion.div key={label} variants={fadeUp}>
               <Card className="bg-gradient-card shadow-industrial text-center">
-                <CardContent className="p-8">
-                  <Icon className="w-8 h-8 text-primary mx-auto mb-3" />
-                  <p className="font-oswald font-bold text-3xl text-gradient-primary mb-1">{value}</p>
-                  <p className="font-barlow text-muted-foreground text-sm">{label}</p>
+                <CardContent className="p-4 sm:p-8">
+                  <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary mx-auto mb-2 sm:mb-3" />
+                  <p className="font-oswald font-bold text-2xl sm:text-3xl text-gradient-primary mb-1">{value}</p>
+                  <p className="font-barlow text-muted-foreground text-xs sm:text-sm">{label}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -106,7 +106,7 @@ export default function About() {
               src="https://images.unsplash.com/photo-1558981033-0f0309284409?q=80&w=1200"
               alt="DonMoto workshop"
               loading="lazy"
-              className="w-full h-80 object-cover"
+              className="w-full h-56 sm:h-80 object-cover"
             />
           </motion.div>
         </motion.div>
@@ -121,7 +121,7 @@ export default function About() {
         >
           <motion.div variants={fadeUp} className="text-center mb-10">
             <p className="font-oswald text-xs uppercase tracking-[4px] text-primary mb-3">The Crew</p>
-            <h2 className="font-oswald font-bold uppercase text-4xl">Meet the Team</h2>
+            <h2 className="font-oswald font-bold uppercase text-3xl sm:text-4xl">Meet the Team</h2>
           </motion.div>
           <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {team.map((member) => (
@@ -159,7 +159,7 @@ export default function About() {
             <ul className="space-y-5 font-barlow">
               {[
                 { icon: MapPin, text: "1284 Ironworks Ave, Moto City, CA 90210" },
-                { icon: Phone, text: "+1 (555) 123-4567", href: "tel:+15551234567" },
+                { icon: Phone, text: "+63 949 681 6756", href: "tel:+639496816756" },
                 { icon: Mail, text: "info@donmoto.com", href: "mailto:info@donmoto.com" },
               ].map(({ icon: Icon, text, href }) => (
                 <li key={text} className="flex items-start gap-3">
@@ -180,13 +180,18 @@ export default function About() {
           </motion.div>
 
           <motion.div variants={fadeUp}>
-            {/* Google Maps placeholder */}
-            <div className="rounded-xl overflow-hidden border border-border shadow-industrial h-72 lg:h-full min-h-[280px] bg-secondary flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <MapPin className="w-10 h-10 text-primary mx-auto mb-3" />
-                <p className="font-oswald uppercase tracking-wider text-sm">Google Maps Embed</p>
-                <p className="font-barlow text-xs mt-1">Replace with your&nbsp;&lt;iframe&gt; embed code</p>
-              </div>
+            <div className="rounded-xl overflow-hidden border border-border shadow-industrial h-56 sm:h-72 lg:h-full min-h-[220px]">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15442.929123782753!2d120.95614651795998!3d14.614320974917591!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b5e41511d7c7%3A0x4352cd0569d23a8f!2sDon%20Moto%20Repair%20Shop!5e0!3m2!1sen!2sph!4v1777713376251!5m2!1sen!2sph"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Don Moto Repair Shop location"
+                className="w-full h-full min-h-[220px]"
+              />
             </div>
           </motion.div>
         </motion.div>
