@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wrench, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -20,11 +20,17 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <nav className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <Wrench className="w-6 h-6 text-primary" />
-          <span className="font-oswald text-lg font-bold uppercase tracking-wider">
-            Don<span className="text-primary">Moto</span>
-          </span>
+        <Link to="/" className="flex items-center overflow-hidden" style={{ width: 160, height: 44 }}>
+          <img
+            src="/DonMoto_logo.png"
+            alt="DonMoto"
+            style={{
+              width: 160,
+              height: 160,
+              objectFit: "cover",
+              objectPosition: "center 44%",
+            }}
+          />
         </Link>
 
         {/* Desktop nav */}

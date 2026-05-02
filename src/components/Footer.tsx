@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Wrench, Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -8,11 +8,17 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <Wrench className="w-5 h-5 text-primary" />
-              <span className="font-oswald text-lg font-bold uppercase tracking-wider">
-                Don<span className="text-primary">Moto</span>
-              </span>
+            <div className="mb-4 overflow-hidden" style={{ width: 140, height: 38 }}>
+              <img
+                src="/DonMoto_logo.png"
+                alt="DonMoto"
+                style={{
+                  width: 140,
+                  height: 140,
+                  objectFit: "cover",
+                  objectPosition: "center 44%",
+                }}
+              />
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed font-barlow">
               Precision motorcycle service, repairs, and premium parts. Trusted by riders since 2005.
